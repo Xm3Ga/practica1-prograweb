@@ -15,7 +15,7 @@ En este repositorio se encuentra el código completo de la aplicación de la pr�
 
 1. Clona el repositorio
 ```bash
-git clone {todo}
+git clone https://github.com/Xm3Ga/practica1-prograweb.git
 ```
 
 2. Navegamos a la carpeta clonada, y ejecutamos:
