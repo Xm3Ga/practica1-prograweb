@@ -60,34 +60,6 @@ Para hacer a un usuario administrador, modificar el atributo 'role' de ese usuar
 └── config.js            # Configuración de la aplicación
 ```
 
-## Decisiones de Desarrollo
-
-### Arquitectura
-- **Modularización**: Rutas, modelos y middleware en archivos separados
-- **Configuración centralizada**: Todas las variables de entorno en config.js
-
-### Seguridad
-- **Contraseñas encriptadas**: Uso de bcrypt con salt rounds de 10
-- **JWT en headers**: Token enviado como Bearer token
-- **Validación de roles**: Middleware para verificar permisos de administrador
-- **Autenticación en Socket.IO**: Verificación de JWT en conexiones de websocket
-
-### Base de Datos
-- **Esquemas con validación**: Uso de Mongoose para validar datos
-- **Referencias entre colecciones**: Productos vinculados a usuarios creadores
-- **Timestamps automáticos**: createdAt y updatedAt en todos los documentos
-
-### Frontend
-- **JavaScript Vanilla**: Sin frameworks para mantener simplicidad
-- **Estado local**: Gestión básica del estado en variables globales
-- **Diseño responsive**: CSS Grid y Flexbox para adaptabilidad
-
-### Chat en Tiempo Real
-- **Salas de chat**: Implementación de sala general para todos los usuarios
-- **Indicador de escritura**: Muestra cuando otros usuarios están escribiendo
-- **Mensajes del sistema**: Notificaciones de conexión/desconexión
-- **Escape de HTML**: Prevención de XSS en mensajes
-
 ## Decisiones del desarrollo
 
 Primero, he partido usando los codigos de las sesiones 10 y 12, que están disponibles en github. Para que la aplicación se ajuste un poco más al objetivo, he modificado los modelos y las rutas para ampliar ligeramente la funcionalidad:
