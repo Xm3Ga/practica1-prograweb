@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat en Tiempo Real - Portal de Productos</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <h1 class="nav-title">Chat en Tiempo Real</h1>
+            <div class="nav-links">
+                <a href="/">Volver a Productos</a>
+                <a href="#" id="logoutLink">Cerrar Sesión</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="chat-container">
+            <div class="chat-header">
+                <h3>Chat General</h3>
+                <span id="userInfo"></span>
+            </div>
+            
+            <div class="chat-messages" id="messages">
+                <!-- Los mensajes se cargarán aquí dinámicamente -->
+            </div>
+            
+            <div class="typing-indicator" id="typingIndicator"></div>
+            
+            <div class="chat-input-container">
+                <input type="text" id="messageInput" placeholder="Escribe un mensaje..." autocomplete="off">
+                <button class="btn btn-primary" id="sendBtn">Enviar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        // Estado
+        let socket = null;
+        let currentUser = null;
+        const token = localStorage.getItem('token');
+        let typingTimer;
+        const typingUsers = new Set();
+
+        // Referencias DOM
+        const messages = document.getElementById('messages');
+        const messageInput = document.getElementById('messageInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const userInfo = document.getElementById('userInfo');
+        const typingIndicator = document.getElementById('typingIndicator');
+
+        // Verificar autenticación
+        if (!token) {
+            window.location.href = '/';
+        } else {
+            // Decodificar token para obtener info del usuario
+            try {
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                currentUser = {
+                    id: payload.id,
+                    username: payload.username,
+                    role: payload.role
+                };
+                userInfo.textContent = `Usuario: ${currentUser.username} (${currentUser.role})`;
+            } catch (error) {
+                console.error('Token inválido');
+                window.location.href = '/';
+            }
+        }
+
+        // Inicializar Socket.IO con autenticación
+        socket = io({
+            auth: {
+                token: token
+            }
+        });
+
+        // Event listeners de Socket.IO
+        socket.on('connect', () => {
+            console.log('Conectado al servidor de chat');
+            addSystemMessage('Te has conectado al chat');
+        });
+
+        socket.on('connect_error', (error) => {
+            console.error('Error de conexión:', error.message);
+            if (error.message === 'Token inválido' || error.message === 'Token no proporcionado') {
+                localStorage.removeItem('token');
+                window.location.href = '/';
+            }
+        });
+
+        socket.on('chat message', (data) => {
+            addMessage(data);
+        });
+
+        socket.on('user joined', (data) => {
+            addSystemMessage(data.message);
+        });
+
+        socket.on('user left', (data) => {
+            addSystemMessage(data.message);
+        });
+
+        socket.on('typing', (username) => {
+            typingUsers.add(username);
+            updateTypingIndicator();
+        });
+
+        socket.on('stop typing', (username) => {
+            typingUsers.delete(username);
+            updateTypingIndicator();
+        });
+
+        // Funciones
+        function addMessage(data) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message';
+            
+            const time = new Date(data.timestamp).toLocaleTimeString('es-ES', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            messageDiv.innerHTML = `
+                <div class="message-header">
+                    <span class="message-username">${data.username}</span>
+                    <span class="message-time">${time}</span>
+                </div>
+                <div class="message-content">${escapeHtml(data.message)}</div>
+            `;
+            
+            messages.appendChild(messageDiv);
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        function addSystemMessage(message) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'system-message';
+            messageDiv.textContent = message;
+            messages.appendChild(messageDiv);
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        function sendMessage() {
+            const message = messageInput.value.trim();
+            if (message) {
+                socket.emit('chat message', message);
+                messageInput.value = '';
+                socket.emit('stop typing');
+            }
+        }
+
+        function updateTypingIndicator() {
+            if (typingUsers.size === 0) {
+                typingIndicator.textContent = '';
+            } else if (typingUsers.size === 1) {
+                typingIndicator.textContent = `${Array.from(typingUsers)[0]} está escribiendo...`;
+            } else {
+                typingIndicator.textContent = `${typingUsers.size} usuarios están escribiendo...`;
+            }
+        }
+
+        function escapeHtml(unsafe) {
+            return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // Event listeners DOM
+        sendBtn.addEventListener('click', sendMessage);
+
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            } else {
+                clearTimeout(typingTimer);
+                socket.emit('typing');
+                typingTimer = setTimeout(() => {
+                    socket.emit('stop typing');
+                }, 1000);
+            }
+        });
+
+        messageInput.addEventListener('blur', () => {
+            clearTimeout(typingTimer);
+            socket.emit('stop typing');
+        });
+
+        document.getElementById('logoutLink').addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.removeItem('token');
+            window.location.href = '/';
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal de Productos</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <h1 class="nav-title">Portal de Productos</h1>
+            <div class="nav-links" id="navLinks">
+                <a href="#" id="loginLink">Iniciar Sesión</a>
+                <a href="#" id="registerLink">Registrarse</a>
+                <a href="#" id="logoutLink" style="display: none;">Cerrar Sesión</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Vista de Login -->
+        <div id="loginView" class="auth-form" style="display: none;">
+            <h2>Iniciar Sesión</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="loginUsername">Usuario:</label>
+                    <input type="text" id="loginUsername" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Contraseña:</label>
+                    <input type="password" id="loginPassword" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
+            </form>
+            <p class="form-footer">¿No tienes cuenta? <a href="#" id="showRegister">Regístrate aquí</a></p>
+        </div>
+
+        <!-- Vista de Registro -->
+        <div id="registerView" class="auth-form" style="display: none;">
+            <h2>Registro</h2>
+            <form id="registerForm">
+                <div class="form-group">
+                    <label for="registerUsername">Usuario:</label>
+                    <input type="text" id="registerUsername" required minlength="3">
+                </div>
+                <div class="form-group">
+                    <label for="registerEmail">Email:</label>
+                    <input type="email" id="registerEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword">Contraseña:</label>
+                    <input type="password" id="registerPassword" required minlength="6">
+                </div>
+                <button type="submit" class="btn btn-primary">Registrarse</button>
+            </form>
+            <p class="form-footer">¿Ya tienes cuenta? <a href="#" id="showLogin">Inicia sesión aquí</a></p>
+        </div>
+
+        <!-- Vista de Productos -->
+        <div id="productsView" style="display: none;">
+            <div class="products-header">
+                <h2>Lista de Productos</h2>
+                <div class="header-actions">
+                    <button id="addProductBtn" class="btn btn-success" style="display: none;">
+                        + Agregar Producto
+                    </button>
+                    <a href="/chat" class="btn btn-info">Ir al Chat</a>
+                </div>
+            </div>
+
+            <div id="productsList" class="products-grid">
+                <!-- Los productos se cargarán aquí dinámicamente -->
+            </div>
+        </div>
+
+        <!-- Modal para agregar/editar producto -->
+        <div id="productModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2 id="modalTitle">Agregar Producto</h2>
+                <form id="productForm">
+                    <input type="hidden" id="productId">
+                    <div class="form-group">
+                        <label for="productName">Nombre:</label>
+                        <input type="text" id="productName" required minlength="3">
+                    </div>
+                    <div class="form-group">
+                        <label for="productPrice">Precio:</label>
+                        <input type="number" id="productPrice" required min="0" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label for="productDescription">Descripción:</label>
+                        <textarea id="productDescription" required minlength="10"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="productStock">Stock:</label>
+                        <input type="number" id="productStock" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="productCategory">Categoría:</label>
+                        <input type="text" id="productCategory" value="General">
+                    </div>
+                    <div class="modal-buttons">
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                        <button type="button" class="btn btn-secondary" id="cancelModal">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mensaje de notificación -->
+    <div id="notification" class="notification"></div>
+
+    <script src="client.js"></script>
+</body>
+</html>
