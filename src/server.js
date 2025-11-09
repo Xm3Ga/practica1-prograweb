@@ -107,13 +107,13 @@ app.use((err, req, res, next) => {
 // Conexión a MongoDB y arranque del servidor
 mongoose.connect(config.MONGO_URI)
   .then(() => {
-    console.log('✅ Conectado a MongoDB');
+    console.log('Conectado a MongoDB');
     server.listen(config.PORT, () => {
-      console.log(`🚀 Servidor corriendo en http://localhost:${config.PORT}`);
+      console.log(`Servidor corriendo en http://localhost:${config.PORT}`);
     });
   })
   .catch(err => {
-    console.error('❌ Error al conectar a MongoDB:', err);
+    console.error('Error al conectar a MongoDB:', err);
     process.exit(1);
   });
 

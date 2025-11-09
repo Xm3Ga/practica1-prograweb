@@ -1,63 +1,42 @@
-# Portal de Productos con Autenticación y Chat
+# PRÁCTICA 1: PORTAL DE PRODUCTOS CON AUTENTICACIÓN Y CHAT
 
-Aplicación web completa que integra un sistema de gestión de productos con autenticación JWT y chat en tiempo real usando Socket.IO.
+En este repositorio se encuentra el código completo de la aplicación de la práctica 1 para la asignatura de programación web.
 
-## Características
+## Criterios de evaluación
 
-- **Sistema de Autenticación**: Registro y login de usuarios con JWT
-- **Gestión de Roles**: Usuarios normales y administradores con diferentes permisos
-- **CRUD de Productos**: Sistema completo de gestión de productos (solo administradores)
-- **Chat en Tiempo Real**: Chat integrado con Socket.IO para usuarios autenticados
-- **Interfaz Moderna**: Diseño responsive y amigable
+- Autenticación con JWT correctamente implementada ✅
+- Roles y permisos funcionales (user / admin) ✅
+- CRUD de productos operativo y conectado a MongoDB ✅
+- Chat integrado y funcionando con usuarios autenticados ✅
+- Estructura y claridad del código / buenas prácticas (A criterio del profesor)
+- Documentación y presentación (A criterio del profesor)
 
-## Tecnologías Utilizadas
+## Como ejecutar la aplicación
 
-- **Backend**: Node.js con Express
-- **Base de Datos**: MongoDB con Mongoose
-- **Autenticación**: JSON Web Tokens (JWT) con bcrypt
-- **Tiempo Real**: Socket.IO
-- **Frontend**: HTML, CSS y JavaScript vanilla
-
-## Requisitos Previos
-
-- Node.js (v14 o superior)
-- MongoDB instalado y ejecutándose localmente
-- NPM o Yarn
-
-## Instalación
-
-1. Navegar a la carpeta del proyecto:
+1. Clona el repositorio
 ```bash
-cd alt_practica1/src
+git clone {todo}
 ```
 
-2. Instalar las dependencias:
+2. Navegamos a la carpeta clonada, y ejecutamos:
 ```bash
 npm install
 ```
 
-3. (Opcional) Crear un archivo `.env` basado en las siguientes variables:
-```
-PORT=3000
-MONGO_URI=mongodb://localhost:27017/portal_productos
-JWT_SECRET=mi_secreto_super_seguro_para_jwt_2024
-```
-
-4. Asegurarse de que MongoDB esté ejecutándose en tu sistema.
-
-## Ejecución
-
-Para iniciar el servidor:
+3. Navegamos a la carpeta /src y ejecutamos:
 ```bash
 npm start
 ```
 
-Para modo desarrollo con auto-recarga:
-```bash
-npm run dev
-```
-
 La aplicación estará disponible en: `http://localhost:3000`
+
+## Notas importantes
+
+La aplicación corre de manera 100% local, por lo tanto para ejecutar el proyecto necesitaremos NodeJS con npm, y MongoDB ejecutandose en local.
+
+La aplicación no incluye un .env de ejemplo. Se recomienda crear un .env personalizado si se va a utilizar la aplicación en producción (Cambiar usando los valores en src/config.js)
+
+Para hacer a un usuario administrador, modificar el atributo 'role' de ese usuario en la base de datos, y cambiarlo de 'user' a 'admin'.
 
 ## Estructura del Proyecto
 
@@ -81,39 +60,9 @@ La aplicación estará disponible en: `http://localhost:3000`
 └── config.js            # Configuración de la aplicación
 ```
 
-## Funcionalidades por Rol
-
-### Usuario Normal
-- Ver lista de productos
-- Acceder al chat en tiempo real
-- Gestionar su sesión (login/logout)
-
-### Administrador
-- Todas las funciones de usuario normal
-- Crear nuevos productos
-- Editar productos existentes
-- Eliminar productos
-
-## API Endpoints
-
-### Autenticación
-- `POST /api/auth/register` - Registro de nuevos usuarios
-- `POST /api/auth/login` - Inicio de sesión
-
-### Productos
-- `GET /api/products` - Obtener todos los productos (público)
-- `GET /api/products/:id` - Obtener un producto específico
-- `POST /api/products` - Crear producto (solo admin)
-- `PUT /api/products/:id` - Actualizar producto (solo admin)
-- `DELETE /api/products/:id` - Eliminar producto (solo admin)
-
-### Chat
-- `GET /chat` - Página del chat (requiere autenticación)
-
 ## Decisiones de Desarrollo
 
 ### Arquitectura
-- **Separación de responsabilidades**: Backend API REST + Frontend SPA básico
 - **Modularización**: Rutas, modelos y middleware en archivos separados
 - **Configuración centralizada**: Todas las variables de entorno en config.js
 
@@ -139,49 +88,20 @@ La aplicación estará disponible en: `http://localhost:3000`
 - **Mensajes del sistema**: Notificaciones de conexión/desconexión
 - **Escape de HTML**: Prevención de XSS en mensajes
 
-## Prueba de la Aplicación
+## Decisiones del desarrollo
 
-### Crear Usuario Administrador (Manual)
-Para crear un usuario administrador, puedes:
-1. Registrar un usuario normal
-2. Acceder a MongoDB y cambiar el rol a 'admin':
-```javascript
-db.users.updateOne({username: "tu_usuario"}, {$set: {role: "admin"}})
-```
+Primero, he partido usando los codigos de las sesiones 10 y 12, que están disponibles en github. Para que la aplicación se ajuste un poco más al objetivo, he modificado los modelos y las rutas para ampliar ligeramente la funcionalidad:
+- En el caso de los modelos, product.js ahora acepta stock, categoría y creado por, además de añadir pequeños mensajes a las demás categorías.
+- La ruta de productos (que ha pasado a llamarse productRoutes.js) ahora utiliza autenticación con JWT, y se ha añadido una ruta para obtener un producto por su ID, en vez de obtener todos los productos. La autenticación utiliza el método isAdmin del archivo authenticateJWT.js
 
-### Flujo de Prueba Recomendado
-1. Registrar un usuario nuevo
-2. Iniciar sesión
-3. Ver productos (inicialmente vacío)
-4. Acceder al chat
-5. Crear usuario admin (ver arriba)
-6. Iniciar sesión como admin
-7. Crear, editar y eliminar productos
-8. Probar el chat con múltiples usuarios
+El archivo server.js conteniendo el chat usando WS también lo he cambiado mucho. Al haber hecho tantos cambios, me he ayudado de un modelo de lenguaje para realizar todos los cambios:
+- Ahora los usuarios no son anonimos, sino autenticados con JWT.
+- Los mensajes tienen usuario y timestamp.
+- El chat contiene notificaciones de "escribiendo".
+- El puerto no está hardcodeado en server.js, si no configurable en config.js
+- Uso de CORS (pero sin configurar detalladamente, TODO)
+- Uso de la librería 'morgan' para logear todas las peticiones a consola. Lo añadí para claridad y debugging mientras probaba la app
+- La conexión a MongoDB se realiza aquí
+- Rutas de la API y las rutas principales de index y chat están aquí también
 
-## Consideraciones de Producción
-
-Para un entorno de producción real, se recomienda:
-- Usar HTTPS con certificados SSL
-- Implementar rate limiting
-- Agregar validación más estricta de datos
-- Implementar logs más detallados
-- Usar un servicio de gestión de sesiones
-- Configurar CORS correctamente
-- Implementar caché para mejorar rendimiento
-
-## Ampliaciones Futuras
-
-Posibles mejoras para el proyecto:
-- Persistencia del historial de chat en base de datos
-- Sistema de notificaciones
-- Búsqueda y filtrado de productos
-- Paginación de productos
-- Subida de imágenes para productos
-- Sistema de categorías más robusto
-- Perfil de usuario editable
-- Recuperación de contraseña
-
-## Autor
-
-Proyecto desarrollado como práctica universitaria para demostrar la integración de múltiples tecnologías web modernas.
+Fuera de todos esos cambios, el resto de la aplicación y en su conjunto cumplen con todos los requisitos pedidos.
